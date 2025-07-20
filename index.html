@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Status Toggle</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <form action="insert.php" method="post">
+    Name: <input type="text" name="name" required>
+    Age: <input type="number" name="age" required>
+    <input type="submit" value="Submit">
+  </form>
+
+  <table id="userTable">
+    <thead>
+      <tr>
+        <th>ID</th><th>Name</th><th>Age</th><th>Status</th><th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- البيانات تظهر هنا -->
+    </tbody>
+  </table>
+
+  <script>
+    function loadData() {
+      fetch("fetch.php")
+        .then(response => response.json())
+        .then(data => {
+          const tableBody = document.querySelector("#userTable tbody");
+          tableBody.innerHTML = "";
+
+          data.forEach(row => {
+            const tr = document.createElement("tr");
+
+            tr.innerHTML = `
+              <td>${row.id}</td>
+              <td>${row.name}</td>
+              <td>${row.age}</td>
+              <td>${row.status}</td>
+              <td><button onclick="toggleStatus(${row.id}, ${row.status})">Toggle</button></td>
+            `;
+
+            tableBody.appendChild(tr);
+          });
+        });
+    }
+
+    function toggleStatus(id, status) {
+      fetch("update.php", {
+        method: "POST",
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `id=${id}&status=${status}`
+      })
+      .then(() => loadData()); // تحديث البيانات بعد التعديل
+    }
+
+    // تحميل البيانات عند فتح الصفحة
+    window.onload = loadData;
+  </script>
+
+</body>
+</html>
